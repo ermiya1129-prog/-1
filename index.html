@@ -1,199 +1,212 @@
+html
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ساعت جهانی حرفه‌ای</title>
+<title>ساعت جهانی ارمیا</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:tahoma;
-}
-
 body{
-background:#0f172a;
-color:white;
-transition:.3s;
-padding:20px;
-}
-
-body.light{
+font-family:tahoma;
+margin:0;
 background:#f4f4f4;
-color:#222;
+transition:.3s;
 }
 
-h1{
+.dark{
+background:#111827;
+color:white;
+}
+
+header{
+background:#2563eb;
+color:white;
+padding:20px;
 text-align:center;
-margin-bottom:20px;
 }
 
-.top{
-display:flex;
-justify-content:center;
-gap:10px;
-margin-bottom:20px;
-flex-wrap:wrap;
+.search{
+text-align:center;
+padding:15px;
 }
 
 input{
 padding:12px;
-border:none;
+width:80%;
+max-width:400px;
 border-radius:10px;
-width:250px;
+border:1px solid #ccc;
 }
 
 button{
-padding:12px;
+padding:10px 15px;
 border:none;
 border-radius:10px;
 cursor:pointer;
+margin:5px;
 }
 
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
 gap:15px;
+padding:20px;
 }
 
 .card{
-background:#1e293b;
+background:white;
 padding:20px;
 border-radius:15px;
-text-align:center;
+box-shadow:0 0 10px rgba(0,0,0,.1);
 }
 
-.light .card{
-background:white;
-box-shadow:0 0 10px rgba(0,0,0,.15);
+.dark .card{
+background:#1f2937;
 }
 
 .city{
-font-size:24px;
-margin-bottom:10px;
+font-size:22px;
+font-weight:bold;
 }
 
 .time{
-font-size:32px;
-font-weight:bold;
-color:#22c55e;
-}
-
-.date{
+font-size:30px;
 margin-top:10px;
-font-size:14px;
+color:#2563eb;
 }
 
-.remove{
-margin-top:15px;
-background:red;
-color:white;
+.dark .time{
+color:#60a5fa;
 }
 </style>
 </head>
 <body>
 
-<h1>🌍 ساعت جهانی حرفه‌ای</h1>
+<header>
+<h1>🌍 ساعت جهانی ارمیا</h1>
+<p id="date"></p>
 
-<div class="top">
-<input id="cityInput" placeholder="مثلا Tehran">
-<button onclick="addCity()">افزودن شهر</button>
-<button onclick="toggleTheme()">🌙/☀️</button>
+<button onclick="toggleTheme()">
+🌙 شب / روز
+</button>
+</header>
+
+<div class="search">
+<input
+id="search"
+placeholder="جستجوی شهر..."
+onkeyup="render()">
 </div>
 
-<div class="grid" id="clocks"></div>
+<div class="grid" id="grid"></div>
 
 <script>
 
 const cities=[
-{name:"Tehran",zone:"Asia/Tehran"},
-{name:"London",zone:"Europe/London"},
-{name:"New York",zone:"America/New_York"},
-{name:"Tokyo",zone:"Asia/Tokyo"}
+
+{name:"تهران",flag:"🇮🇷",tz:"Asia/Tehran"},
+{name:"بغداد",flag:"🇮🇶",tz:"Asia/Baghdad"},
+{name:"مکه",flag:"🇸🇦",tz:"Asia/Riyadh"},
+{name:"دبی",flag:"🇦🇪",tz:"Asia/Dubai"},
+{name:"لندن",flag:"🇬🇧",tz:"Europe/London"},
+{name:"پاریس",flag:"🇫🇷",tz:"Europe/Paris"},
+{name:"برلین",flag:"🇩🇪",tz:"Europe/Berlin"},
+{name:"مسکو",flag:"🇷🇺",tz:"Europe/Moscow"},
+{name:"توکیو",flag:"🇯🇵",tz:"Asia/Tokyo"},
+{name:"پکن",flag:"🇨🇳",tz:"Asia/Shanghai"},
+{name:"نیویورک",flag:"🇺🇸",tz:"America/New_York"},
+{name:"لس‌آنجلس",flag:"🇺🇸",tz:"America/Los_Angeles"},
+{name:"تورنتو",flag:"🇨🇦",tz:"America/Toronto"},
+{name:"استانبول",flag:"🇹🇷",tz:"Europe/Istanbul"}
+
 ];
+
+function getTime(zone){
+
+return new Date()
+.toLocaleTimeString(
+"fa-IR",
+{
+timeZone:zone
+});
+
+}
 
 function render(){
 
-const container=document.getElementById("clocks");
-container.innerHTML="";
+const text=
+document.getElementById("search")
+.value;
 
-cities.forEach((c,index)=>{
+const grid=
+document.getElementById("grid");
 
-const card=document.createElement("div");
-card.className="card";
+grid.innerHTML="";
 
-card.innerHTML=
-<div class="city">${c.name}</div>
-<div class="time" id="time${index}"></div>
-<div class="date" id="date${index}"></div>
-<button class="remove" onclick="removeCity(${index})">
-حذف
-</button>
-;
+cities
+.filter(c=>c.name.includes(text))
+.forEach(c=>{
 
-container.appendChild(card);
+grid.innerHTML+=`
 
-});
+<div class="card">
 
-}
+<div class="city">
+${c.flag} ${c.name}
+</div>
 
-function updateTime(){
+<div class="time">
+${getTime(c.tz)}
+</div>
 
-cities.forEach((c,index)=>{
+</div>
 
-const now=new Date();
-
-document.getElementById("time"+index).innerHTML=
-now.toLocaleTimeString("fa-IR",{
-timeZone:c.zone
-});
-
-document.getElementById("date"+index).innerHTML=
-now.toLocaleDateString("fa-IR",{
-timeZone:c.zone
-});
+`;
 
 });
 
 }
 
-function removeCity(i){
+function updateDate(){
 
-cities.splice(i,1);
+document.getElementById("date")
+.innerHTML=
 
-render();
-
-updateTime();
-
-}
-
-function addCity(){
-
-const city=document.getElementById("cityInput").value.trim();
-
-if(!city) return;
-
-cities.push({
-name:city,
-zone:"UTC"
+new Date()
+.toLocaleDateString("fa-IR",
+{
+weekday:"long",
+year:"numeric",
+month:"long",
+day:"numeric"
 });
 
-render();
-updateTime();
-
-document.getElementById("cityInput").value="";
 }
 
 function toggleTheme(){
-document.body.classList.toggle("light");
+
+document.body.classList.toggle("dark");
+
+localStorage.setItem(
+"theme",
+document.body.classList.contains("dark")
+);
+
 }
 
-render();
-updateTime();
+if(localStorage.getItem("theme")==="true"){
 
-setInterval(updateTime,1000);
+document.body.classList.add("dark");
+
+}
+
+setInterval(render,1000);
+
+updateDate();
+
+render();
 
 </script>
 
