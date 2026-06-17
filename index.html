@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ساعت جهانی حرفه‌ای</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:tahoma;
+}
+
+body{
+background:#0f172a;
+color:white;
+transition:.3s;
+padding:20px;
+}
+
+body.light{
+background:#f4f4f4;
+color:#222;
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+}
+
+.top{
+display:flex;
+justify-content:center;
+gap:10px;
+margin-bottom:20px;
+flex-wrap:wrap;
+}
+
+input{
+padding:12px;
+border:none;
+border-radius:10px;
+width:250px;
+}
+
+button{
+padding:12px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+}
+
+.card{
+background:#1e293b;
+padding:20px;
+border-radius:15px;
+text-align:center;
+}
+
+.light .card{
+background:white;
+box-shadow:0 0 10px rgba(0,0,0,.15);
+}
+
+.city{
+font-size:24px;
+margin-bottom:10px;
+}
+
+.time{
+font-size:32px;
+font-weight:bold;
+color:#22c55e;
+}
+
+.date{
+margin-top:10px;
+font-size:14px;
+}
+
+.remove{
+margin-top:15px;
+background:red;
+color:white;
+}
+</style>
+</head>
+<body>
+
+<h1>🌍 ساعت جهانی حرفه‌ای</h1>
+
+<div class="top">
+<input id="cityInput" placeholder="مثلا Tehran">
+<button onclick="addCity()">افزودن شهر</button>
+<button onclick="toggleTheme()">🌙/☀️</button>
+</div>
+
+<div class="grid" id="clocks"></div>
+
+<script>
+
+const cities=[
+{name:"Tehran",zone:"Asia/Tehran"},
+{name:"London",zone:"Europe/London"},
+{name:"New York",zone:"America/New_York"},
+{name:"Tokyo",zone:"Asia/Tokyo"}
+];
+
+function render(){
+
+const container=document.getElementById("clocks");
+container.innerHTML="";
+
+cities.forEach((c,index)=>{
+
+const card=document.createElement("div");
+card.className="card";
+
+card.innerHTML=
+<div class="city">${c.name}</div>
+<div class="time" id="time${index}"></div>
+<div class="date" id="date${index}"></div>
+<button class="remove" onclick="removeCity(${index})">
+حذف
+</button>
+;
+
+container.appendChild(card);
+
+});
+
+}
+
+function updateTime(){
+
+cities.forEach((c,index)=>{
+
+const now=new Date();
+
+document.getElementById("time"+index).innerHTML=
+now.toLocaleTimeString("fa-IR",{
+timeZone:c.zone
+});
+
+document.getElementById("date"+index).innerHTML=
+now.toLocaleDateString("fa-IR",{
+timeZone:c.zone
+});
+
+});
+
+}
+
+function removeCity(i){
+
+cities.splice(i,1);
+
+render();
+
+updateTime();
+
+}
+
+function addCity(){
+
+const city=document.getElementById("cityInput").value.trim();
+
+if(!city) return;
+
+cities.push({
+name:city,
+zone:"UTC"
+});
+
+render();
+updateTime();
+
+document.getElementById("cityInput").value="";
+}
+
+function toggleTheme(){
+document.body.classList.toggle("light");
+}
+
+render();
+updateTime();
+
+setInterval(updateTime,1000);
+
+</script>
+
+</body>
+</html>
