@@ -1,221 +1,408 @@
-html
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
 <title>ساعت جهانی ارمیا</title>
 
 <style>
-body{
-font-family:tahoma;
+
+*{
 margin:0;
-background:#f4f4f4;
-transition:.3s;
+padding:0;
+box-sizing:border-box;
+font-family:tahoma;
 }
 
-.dark{
-background:#111827;
+body{
+
+background:#0f172a;
+
 color:white;
+
+min-height:100vh;
+
 }
 
 header{
-background:#2563eb;
-color:white;
+
+background:#1e293b;
+
 padding:20px;
+
 text-align:center;
+
+box-shadow:0 0 20px rgba(0,0,0,.3);
+
 }
 
-.search{
-text-align:center;
-padding:15px;
+h1{
+
+font-size:32px;
+
+margin-bottom:10px;
+
+}
+
+.big-clock{
+
+font-size:50px;
+
+font-weight:bold;
+
+margin-top:10px;
+
+}
+
+.date{
+
+margin-top:10px;
+
+font-size:18px;
+
+color:#cbd5e1;
+
+}
+
+.controls{
+
+display:flex;
+
+justify-content:center;
+
+gap:10px;
+
+flex-wrap:wrap;
+
+padding:20px;
+
 }
 
 input{
+
 padding:12px;
-width:80%;
-max-width:400px;
-border-radius:10px;
-border:1px solid #ccc;
+
+border:none;
+
+border-radius:12px;
+
+width:280px;
+
+font-size:16px;
+
 }
 
 button{
-padding:10px 15px;
+
+padding:12px 18px;
+
 border:none;
-border-radius:10px;
+
+border-radius:12px;
+
 cursor:pointer;
-margin:5px;
+
+font-size:16px;
+
 }
 
 .grid{
+
 display:grid;
+
 grid-template-columns:
 repeat(auto-fit,minmax(250px,1fr));
+
 gap:15px;
+
 padding:20px;
+
 }
 
 .card{
-background:white;
+
+background:#1e293b;
+
 padding:20px;
-border-radius:15px;
-box-shadow:0 0 10px rgba(0,0,0,.1);
+
+border-radius:20px;
+
+text-align:center;
+
+transition:.3s;
+
 }
 
-.dark .card{
-background:#1f2937;
+.card:hover{
+
+transform:translateY(-5px);
+
 }
 
 .city{
-font-size:22px;
+
+font-size:24px;
+
 font-weight:bold;
+
+margin-bottom:10px;
+
 }
 
 .time{
+
 font-size:30px;
-margin-top:10px;
-color:#2563eb;
+
+font-weight:bold;
+
 }
 
-.dark .time{
-color:#60a5fa;
+.country{
+
+font-size:40px;
+
+margin-bottom:10px;
+
 }
+
+.light{
+
+background:#f1f5f9;
+
+color:#111827;
+
+}
+
+.light .card{
+
+background:white;
+
+}
+
+.light header{
+
+background:white;
+
+}
+
+footer{
+
+text-align:center;
+
+padding:30px;
+
+opacity:.8;
+
+}
+
 </style>
+
 </head>
-  <script>
-if("serviceWorker" in navigator){
-navigator.serviceWorker.register("sw.js");
-}
-</script>
+
 <body>
 
 <header>
-<h1>🌍 ساعت جهانی ارمیا</h1>
-<p id="date"></p>
 
-<button onclick="toggleTheme()">
-🌙 شب / روز
-</button>
+<h1>🌍 ساعت جهانی ارمیا</h1>
+
+<div id="tehranClock"
+class="big-clock">
+00:00:00
+</div>
+
+<div id="today"
+class="date">
+...
+</div>
+
 </header>
 
-<div class="search">
+<div class="controls">
+
 <input
 id="search"
 placeholder="جستجوی شهر..."
-onkeyup="render()">
+onkeyup="filterCities()">
+
+<button onclick="toggleTheme()">
+🌙 / ☀️
+</button>
+
 </div>
 
-<div class="grid" id="grid"></div>
+<div id="clocks"
+class="grid">
 
-<script>
+</div>
 
-const cities=[
+<footer>
 
-{name:"تهران",flag:"🇮🇷",tz:"Asia/Tehran"},
-{name:"بغداد",flag:"🇮🇶",tz:"Asia/Baghdad"},
-{name:"مکه",flag:"🇸🇦",tz:"Asia/Riyadh"},
-{name:"دبی",flag:"🇦🇪",tz:"Asia/Dubai"},
-{name:"لندن",flag:"🇬🇧",tz:"Europe/London"},
-{name:"پاریس",flag:"🇫🇷",tz:"Europe/Paris"},
-{name:"برلین",flag:"🇩🇪",tz:"Europe/Berlin"},
-{name:"مسکو",flag:"🇷🇺",tz:"Europe/Moscow"},
-{name:"توکیو",flag:"🇯🇵",tz:"Asia/Tokyo"},
-{name:"پکن",flag:"🇨🇳",tz:"Asia/Shanghai"},
-{name:"نیویورک",flag:"🇺🇸",tz:"America/New_York"},
-{name:"لس‌آنجلس",flag:"🇺🇸",tz:"America/Los_Angeles"},
-{name:"تورنتو",flag:"🇨🇦",tz:"America/Toronto"},
-{name:"استانبول",flag:"🇹🇷",tz:"Europe/Istanbul"}
+ساخته شده توسط ارمیا
+
+</footer>
+const cities = [
+
+["🇮🇷 تهران","Asia/Tehran"],
+["🇬🇧 لندن","Europe/London"],
+["🇺🇸 نیویورک","America/New_York"],
+["🇺🇸 لس‌آنجلس","America/Los_Angeles"],
+["🇺🇸 شیکاگو","America/Chicago"],
+["🇨🇦 تورنتو","America/Toronto"],
+["🇫🇷 پاریس","Europe/Paris"],
+["🇩🇪 برلین","Europe/Berlin"],
+["🇪🇸 مادرید","Europe/Madrid"],
+["🇮🇹 رم","Europe/Rome"],
+["🇷🇺 مسکو","Europe/Moscow"],
+["🇹🇷 استانبول","Europe/Istanbul"],
+["🇦🇪 دبی","Asia/Dubai"],
+["🇸🇦 ریاض","Asia/Riyadh"],
+["🇶🇦 دوحه","Asia/Qatar"],
+["🇮🇳 دهلی","Asia/Kolkata"],
+["🇵🇰 اسلام‌آباد","Asia/Karachi"],
+["🇨🇳 پکن","Asia/Shanghai"],
+["🇯🇵 توکیو","Asia/Tokyo"],
+["🇰🇷 سئول","Asia/Seoul"],
+["🇹🇭 بانکوک","Asia/Bangkok"],
+["🇸🇬 سنگاپور","Asia/Singapore"],
+["🇲🇾 کوالالامپور","Asia/Kuala_Lumpur"],
+["🇦🇺 سیدنی","Australia/Sydney"],
+["🇳🇿 اوکلند","Pacific/Auckland"],
+["🇧🇷 برازیلیا","America/Sao_Paulo"],
+["🇦🇷 بوئنوس‌آیرس","America/Argentina/Buenos_Aires"],
+["🇲🇽 مکزیکوسیتی","America/Mexico_City"],
+["🇪🇬 قاهره","Africa/Cairo"],
+["🇿🇦 ژوهانسبورگ","Africa/Johannesburg"]
 
 ];
 
-function getTime(zone){
+function updateClocks(){
 
-return new Date()
-.toLocaleTimeString(
+let html="";
+
+cities.forEach(city=>{
+
+const time =
+new Date().toLocaleTimeString(
 "fa-IR",
 {
-timeZone:zone
-});
-
+timeZone: city[1]
 }
+);
 
-function render(){
-
-const text=
-document.getElementById("search")
-.value;
-
-const grid=
-document.getElementById("grid");
-
-grid.innerHTML="";
-
-cities
-.filter(c=>c.name.includes(text))
-.forEach(c=>{
-
-grid.innerHTML+=`
-
+html += 
 <div class="card">
 
+<div class="country">
+${city[0].split(" ")[0]}
+</div>
+
 <div class="city">
-${c.flag} ${c.name}
+${city[0]}
 </div>
 
 <div class="time">
-${getTime(c.tz)}
+${time}
 </div>
 
 </div>
-
-`;
+;
 
 });
 
+document.getElementById("clocks").innerHTML =
+html;
+
+}
+  function updateTehran(){
+
+const now = new Date();
+
+document.getElementById(
+"tehranClock"
+).innerText =
+
+now.toLocaleTimeString(
+"fa-IR",
+{
+timeZone:"Asia/Tehran"
+}
+);
+
+document.getElementById(
+"today"
+).innerText =
+
+new Intl.DateTimeFormat(
+"fa-IR",
+{
+dateStyle:"full"
+}
+).format(now);
+
 }
 
-function updateDate(){
+function filterCities(){
 
-document.getElementById("date")
-.innerHTML=
+const search =
+document.getElementById(
+"search"
+)
+.value
+.toLowerCase();
 
-new Date()
-.toLocaleDateString("fa-IR",
-{
-weekday:"long",
-year:"numeric",
-month:"long",
-day:"numeric"
+const cards =
+document.querySelectorAll(
+".card"
+);
+
+cards.forEach(card=>{
+
+if(
+card.innerText
+.toLowerCase()
+.includes(search)
+){
+
+card.style.display="block";
+
+}else{
+
+card.style.display="none";
+
+}
+
 });
 
 }
 
 function toggleTheme(){
 
-document.body.classList.toggle("dark");
-
-localStorage.setItem(
-"theme",
-document.body.classList.contains("dark")
+document.body.classList.toggle(
+"light"
 );
 
 }
 
-if(localStorage.getItem("theme")==="true"){
+updateClocks();
 
-document.body.classList.add("dark");
+updateTehran();
 
-}
+setInterval(()=>{
 
-setInterval(render,1000);
+updateClocks();
 
-updateDate();
+updateTehran();
 
-render();
+},1000);
 
 </script>
 
 </body>
+
 </html>
+<script>
